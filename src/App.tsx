@@ -26,6 +26,7 @@ import type {
   ProgressState,
   UserSettings,
   Weekday,
+  WorkoutCompletionStatus,
   WorkoutPlanExercise,
   WorkoutSession,
   WorkoutSummaryData
@@ -80,6 +81,12 @@ export default function App() {
     return () => window.clearInterval(timer);
   }, [activeSession]);
 
+  useEffect(() => {
+    if (latestSummary && !activeSession) {
+      setTab("summary");
+    }
+  }, [latestSummary, activeSession]);
+
   const currentExercise = activeSession ? activeSession.plan[activeSession.currentIndex] : null;
   const lastRepForCurrent = currentExercise ? getLastExerciseRep(history, currentExercise.exercise.id) : 0;
   const currentTargetType = currentExercise ? getTargetType(currentExercise.exercise) : "reps";
@@ -124,7 +131,7 @@ export default function App() {
     setDifficultyDraft("goodChallenge");
   }
 
-  function finishWorkout() {
+  function finishWorkout(completionStatus: WorkoutCompletionStatus = "completed") {
     if (!activeSession) return;
 
     const previousSession = history[0];
@@ -132,22 +139,31 @@ export default function App() {
       session: activeSession,
       history,
       focus: todayFocus,
+      completionStatus,
       elapsedSeconds,
       fallbackDurationMinutes: settings.workoutDurationMinutes,
       existingBadges: progress.badges
     });
     const unlockedBadges = result.badges.filter((badge) => !progress.badges.includes(badge));
+    const totalXp = progress.totalXp + result.gainedXp;
+    const level = levelFromXp(totalXp);
+    const xpIntoLevel = totalXp % 250;
+    const xpToNextLevel = 250 - xpIntoLevel || 250;
 
     setHistory(result.nextHistory);
     setProgress({
       streakCount: result.streakCount,
-      totalXp: progress.totalXp + result.gainedXp,
+      totalXp,
       badges: result.badges
     });
     setLatestSummary({
       session: result.workoutSession,
       durationSeconds: elapsedSeconds,
       gainedXp: result.gainedXp,
+      totalXp,
+      level,
+      xpToNextLevel,
+      totalWorkouts: result.nextHistory.length,
       previousStreakCount: progress.streakCount,
       streakCount: result.streakCount,
       unlockedBadges,
@@ -157,6 +173,19 @@ export default function App() {
     setRepDraft(8);
     setDifficultyDraft("goodChallenge");
     setTab("summary");
+  }
+
+  function discardWorkout() {
+    setActiveSession(null);
+    setLatestSummary(null);
+    setElapsedSeconds(0);
+    setRepDraft(8);
+    setDifficultyDraft("goodChallenge");
+    setTab("today");
+  }
+
+  function savePartialWorkout() {
+    finishWorkout("partial");
   }
 
   function updatePhase(group: keyof UserSettings["phaseByMuscleGroup"], value: number) {
@@ -242,7 +271,9 @@ export default function App() {
                   onLogCurrentExercise={logCurrentExercise}
                   onSkipCurrentExercise={handleSkipCurrentExercise}
                   onSwapCurrentExercise={handleSwapCurrentExercise}
-                  onFinishWorkout={finishWorkout}
+                  onFinishWorkout={() => finishWorkout("completed")}
+                  onSavePartialWorkout={savePartialWorkout}
+                  onDiscardWorkout={discardWorkout}
                   isSessionComplete={isSessionComplete}
                 />
               )}
@@ -273,7 +304,7 @@ export default function App() {
           )}
         </main>
 
-        {settings.onboardingCompleted && tab !== "summary" ? (
+        {settings.onboardingCompleted && tab !== "summary" && !activeSession ? (
           <BottomNav current={tab} onClick={setTab} workoutEnabled={Boolean(activeSession)} />
         ) : null}
       </div>

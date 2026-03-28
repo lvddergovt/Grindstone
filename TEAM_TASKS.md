@@ -84,26 +84,62 @@ Make progress feel rewarding and easy to understand, especially right after fini
 ### Main Ownership
 
 - `src/components/ProgressTab.tsx`
+- add a new exercise library or collectibles view under `src/components/`
 - add a new summary component under `src/components/`
 - `src/App.tsx`
+- `src/types.ts`
+- `src/lib/storage.ts`
 
 ### Secondary Files
 
-- `src/types.ts` only if you need small additions to workout summary data
+- `src/data/exercises.ts`
+- `src/constants/labels.ts`
 
 ### What To Build
 
-No open build items right now. Current scope is complete and this track is available for a new assignment.
+1. Exercise collection view
+- show the full exercise list, including locked exercises
+- make locked items clearly feel unavailable but visible:
+  - greyed out state
+  - lock icon or collectible marker
+  - optional hint for how to unlock
+
+2. Trophy / tracker progress view
+- expand the progress experience so it feels like a collectible dashboard
+- show:
+  - exercises unlocked out of total
+  - level progress
+  - badges collected
+  - phase milestones reached
+
+3. Unlock progression rules
+- add a simple MVP unlock system tied to the user's progression
+- use existing data where possible:
+  - XP
+  - level
+  - badges
+  - phase progress
+- do not overcomplicate the first version; the important part is the visible unlock loop
+
+4. Quest-like motivation layer
+- adjust copy and presentation so the app feels more like quests and leveling up
+- add clear celebration moments when something new is unlocked
+- make this visually stronger than the current plain stats treatment
 
 ### Acceptance Criteria
 
-- completed
+- user can open a view that shows all exercises, including locked ones
+- locked exercises are visually distinct and still discoverable
+- progress screen clearly shows collectible-style stats, not just raw numbers
+- there is a visible progress bar for unlock progress or level progress
+- badges, level, and exercise collection feel part of the same motivation system
+- build passes
 
 ### Avoid
 
 - do not own onboarding or equipment setup
 - do not deeply change workout generator logic
-- do not rewrite the workout screen unless needed for summary handoff
+- do not rewrite the workout screen unless needed for summary handoff or unlock celebration wiring
 
 ## Person 3: Workout Flow + Progression
 

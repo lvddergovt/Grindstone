@@ -22,6 +22,7 @@ export interface WorkoutPlanExercise {
 
 export type DifficultyFeedback = "tooEasy" | "goodChallenge" | "tooHard";
 export type ExerciseTargetType = "reps" | "seconds";
+export type WorkoutCompletionStatus = "completed" | "partial";
 
 export interface UserSettings {
   name: string;
@@ -45,6 +46,7 @@ export interface WorkoutSession {
   id: string;
   date: string;
   focus: FocusDay;
+  completionStatus: WorkoutCompletionStatus;
   durationMinutes: number;
   roundsCompleted: number;
   totalReps: number;
@@ -62,6 +64,10 @@ export interface WorkoutSummaryData {
   session: WorkoutSession;
   durationSeconds: number;
   gainedXp: number;
+  totalXp: number;
+  level: number;
+  xpToNextLevel: number;
+  totalWorkouts: number;
   previousStreakCount: number;
   streakCount: number;
   unlockedBadges: string[];

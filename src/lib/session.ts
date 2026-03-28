@@ -3,6 +3,7 @@ import type {
   DifficultyFeedback,
   FocusDay,
   Phase,
+  WorkoutCompletionStatus,
   WorkoutPlanExercise,
   WorkoutSession
 } from "../types";
@@ -98,11 +99,12 @@ export function completeSession(args: {
   session: ActiveSession;
   history: WorkoutSession[];
   focus: FocusDay;
+  completionStatus: WorkoutCompletionStatus;
   elapsedSeconds: number;
   fallbackDurationMinutes: number;
   existingBadges: string[];
 }) {
-  const { session, history, focus, elapsedSeconds, fallbackDurationMinutes, existingBadges } = args;
+  const { session, history, focus, completionStatus, elapsedSeconds, fallbackDurationMinutes, existingBadges } = args;
   const exerciseResults = session.plan.map((item) => ({
     exerciseId: item.exercise.id,
     reps: session.totals[item.exercise.id] ?? 0,
@@ -117,6 +119,7 @@ export function completeSession(args: {
     id: crypto.randomUUID(),
     date: new Date().toISOString(),
     focus,
+    completionStatus,
     durationMinutes: Math.max(1, Math.round(elapsedSeconds / 60) || fallbackDurationMinutes),
     roundsCompleted,
     totalReps,

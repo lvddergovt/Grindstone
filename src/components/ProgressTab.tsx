@@ -134,7 +134,9 @@ export function ProgressTab({
                     <p className="text-xs uppercase tracking-[0.22em] text-mist/55">{focusLabels[session.focus]}</p>
                     <p className="mt-1 font-medium">{formatSessionDate(session.date)}</p>
                   </div>
-                  <div className="rounded-full bg-white/5 px-3 py-2 text-sm text-mist/70">{session.durationMinutes} min</div>
+                  <div className="rounded-full bg-white/5 px-3 py-2 text-sm text-mist/70">
+                    {session.completionStatus === "partial" ? "Partial" : "Complete"} · {session.durationMinutes} min
+                  </div>
                 </div>
                 <div className="mt-3 grid grid-cols-3 gap-3 text-sm text-mist/80">
                   <span>{session.totalReps} reps</span>

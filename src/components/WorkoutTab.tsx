@@ -20,6 +20,8 @@ export function WorkoutTab({
   onSkipCurrentExercise,
   onSwapCurrentExercise,
   onFinishWorkout,
+  onSavePartialWorkout,
+  onDiscardWorkout,
   isSessionComplete
 }: {
   session: ActiveSession;
@@ -37,6 +39,8 @@ export function WorkoutTab({
   onSkipCurrentExercise: () => void;
   onSwapCurrentExercise: (replacement: WorkoutPlanExercise) => void;
   onFinishWorkout: () => void;
+  onSavePartialWorkout: () => void;
+  onDiscardWorkout: () => void;
   isSessionComplete: boolean;
 }) {
   const [restSecondsLeft, setRestSecondsLeft] = useState(0);
@@ -63,7 +67,7 @@ export function WorkoutTab({
   }, [session.currentIndex, session.currentRound, isSessionComplete]);
 
   function handleFinishPress() {
-    if (isSessionComplete || confirmEndEarly) {
+    if (isSessionComplete) {
       onFinishWorkout();
       return;
     }
@@ -226,13 +230,43 @@ export function WorkoutTab({
           </div>
         </div>
 
-        <button
-          className="mt-3 w-full rounded-full border border-white/10 bg-white/5 px-5 py-4 font-medium text-white transition hover:bg-white/10"
-          onClick={handleFinishPress}
-          type="button"
-        >
-          {isSessionComplete ? "Complete workout" : confirmEndEarly ? "Tap again to end early" : "End workout early"}
-        </button>
+        {!confirmEndEarly || isSessionComplete ? (
+          <button
+            className="mt-3 w-full rounded-full border border-white/10 bg-white/5 px-5 py-4 font-medium text-white transition hover:bg-white/10"
+            onClick={handleFinishPress}
+            type="button"
+          >
+            {isSessionComplete ? "Complete workout" : "End workout early"}
+          </button>
+        ) : (
+          <div className="mt-3 rounded-[1.25rem] border border-amber-300/20 bg-amber-300/10 px-4 py-4">
+            <p className="text-sm font-medium text-amber-100">End this workout?</p>
+            <p className="mt-2 text-sm text-mist/75">Save it as a partial session or discard it and return to the dashboard.</p>
+            <div className="mt-4 grid grid-cols-1 gap-3">
+              <button
+                className="w-full rounded-full bg-accent px-5 py-4 font-semibold text-slate-950 transition hover:brightness-110"
+                onClick={onSavePartialWorkout}
+                type="button"
+              >
+                Save partial workout
+              </button>
+              <button
+                className="w-full rounded-full border border-rose-300/25 bg-rose-300/10 px-5 py-4 font-medium text-rose-100 transition hover:bg-rose-300/15"
+                onClick={onDiscardWorkout}
+                type="button"
+              >
+                Discard workout
+              </button>
+              <button
+                className="w-full rounded-full border border-white/10 bg-white/5 px-5 py-4 font-medium text-white transition hover:bg-white/10"
+                onClick={() => setConfirmEndEarly(false)}
+                type="button"
+              >
+                Keep going
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="space-y-3">

@@ -151,7 +151,45 @@ Why it matters:
 
 - visible progress is one of the core reasons for building this app
 
-### 7. Real Progression Engine
+### 7. Collectible Exercise Unlocks + Trophy Tracker
+
+Status: not implemented
+
+To do:
+
+- add an exercise library view that shows all exercise names
+- show locked exercises with a clear collectible treatment:
+  - greyed out card or row
+  - lock icon
+  - unlock hint or requirement
+- define unlock rules tied to progression:
+  - exercise unlocked
+  - phase reached
+  - badge earned
+  - level milestone
+- add a visible unlock progress bar:
+  - exercises unlocked out of total exercises
+  - XP or level progress to next unlock when relevant
+- create a trophy or tracker screen that highlights collectible stats:
+  - exercises collected
+  - levels reached
+  - badges collected
+  - phase milestones reached
+- make the motivation layer feel more quest-like:
+  - unlock moments
+  - collection language
+  - trophy-style summaries
+  - milestone celebration states
+- prioritize the visual design of this system so it feels like a core product loop instead of a hidden settings area
+
+Why it matters:
+
+- this creates a stronger reason to come back beyond just logging reps
+- it turns the exercise library into a collectible system the user can complete over time
+- it gives the app a clearer game loop: train, unlock, level up, collect
+- this should become one of the most visually distinctive parts of the app
+
+### 8. Real Progression Engine
 
 Status: basic placeholder only
 
@@ -171,7 +209,7 @@ Why it matters:
 - this is one of the most important ideas in the original program
 - it turns the app into a real coach instead of just a logger
 
-### 8. Data Model Cleanup
+### 9. Data Model Cleanup
 
 Status: needs improvement
 
@@ -207,6 +245,9 @@ These are still MVP-relevant, but can follow right after the items above.
 - add a clearer XP-to-next-level indicator
 - add weekly mini-goals
 - add phase-up celebration moments
+- make exercise unlocks feel collectible instead of merely available
+- add a trophy-room style tracker for unlocked exercises, badges, and level milestones
+- frame progression as quests, unlocks, and milestone hunts without making it feel punishing
 
 ### Recovery UX
 
@@ -262,5 +303,6 @@ If we keep moving in a practical sequence, this is the order I would suggest:
 3. workout builder controls: swap, skip, difficulty feedback
 4. dedicated workout summary screen
 5. improved progress dashboard
-6. real progression engine
-7. UX and visual polish
+6. collectible exercise unlocks and trophy tracker
+7. real progression engine
+8. UX and visual polish

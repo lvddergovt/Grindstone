@@ -23,14 +23,19 @@ export function WorkoutSummary({
   const previousSession = summary.previousSession;
   const repsDelta = previousSession ? summary.session.totalReps - previousSession.totalReps : null;
   const roundsDelta = previousSession ? summary.session.roundsCompleted - previousSession.roundsCompleted : null;
+  const isPartial = summary.session.completionStatus === "partial";
 
   return (
     <section className="space-y-5">
       <div className="overflow-hidden rounded-[2rem] border border-glow/20 bg-gradient-to-br from-glow/20 via-white/8 to-white/5 px-5 py-6 shadow-[0_20px_80px_rgba(125,211,252,0.12)]">
-        <p className="text-xs uppercase tracking-[0.24em] text-glow/80">Workout complete</p>
-        <h2 className="mt-3 font-display text-3xl">Strong finish on {focusLabels[summary.session.focus]} day</h2>
+        <p className="text-xs uppercase tracking-[0.24em] text-glow/80">{isPartial ? "Partial workout saved" : "Workout complete"}</p>
+        <h2 className="mt-3 font-display text-3xl">
+          {isPartial ? `Session saved for ${focusLabels[summary.session.focus]} day` : `Strong finish on ${focusLabels[summary.session.focus]} day`}
+        </h2>
         <p className="mt-3 text-sm text-mist/80">
-          {summary.session.totalReps > 0
+          {isPartial
+            ? "You ended early, but the session still counted. Your logged reps, streak progress, and XP were saved."
+            : summary.session.totalReps > 0
             ? "Session logged. Your progress is saved, your streak is updated, and your next step is clear."
             : "You wrapped the session and kept the habit alive. Even lighter days still count."}
         </p>
@@ -41,6 +46,11 @@ export function WorkoutSummary({
           <HighlightStat label="Duration" value={formatDuration(summary.durationSeconds)} />
           <HighlightStat label="XP earned" value={`+${summary.gainedXp}`} />
         </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <HighlightStat label="Level" value={String(summary.level)} />
+        <HighlightStat label="Workouts logged" value={String(summary.totalWorkouts)} />
       </div>
 
       <div className="grid grid-cols-1 gap-3">
@@ -56,6 +66,21 @@ export function WorkoutSummary({
             {summary.session.progressionNotes?.[0] ??
               "Keep stacking clean reps. Consistency is what unlocks the next level."}
           </p>
+        </div>
+
+        <div className="rounded-[1.75rem] border border-white/10 bg-white/5 px-5 py-5">
+          <p className="text-xs uppercase tracking-[0.22em] text-mist/55">Level progress</p>
+          <div className="mt-2 flex items-center justify-between gap-3">
+            <p className="font-display text-2xl">Level {summary.level}</p>
+            <p className="text-sm text-mist/70">{summary.xpToNextLevel} XP to next level</p>
+          </div>
+          <p className="mt-2 text-sm text-mist/75">{summary.totalXp} total XP banked so far.</p>
+          <div className="mt-4 h-2 rounded-full bg-white/10">
+            <div
+              className="h-2 rounded-full bg-glow transition-all"
+              style={{ width: `${((summary.totalXp % 250) / 250) * 100}%` }}
+            />
+          </div>
         </div>
       </div>
 
@@ -121,7 +146,7 @@ export function WorkoutSummary({
           onClick={onContinue}
           type="button"
         >
-          Back to today
+          Back to dashboard
         </button>
         <button
           className="rounded-full border border-white/10 bg-white/5 px-5 py-4 font-medium text-white transition hover:bg-white/10"
