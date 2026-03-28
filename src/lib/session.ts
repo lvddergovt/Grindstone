@@ -116,7 +116,7 @@ export function completeSession(args: {
   const totalReps = exerciseResults.reduce((sum, result) => sum + result.reps, 0);
   const roundsCompleted = Math.max(session.currentRound - 1, totalReps > 0 ? 1 : 0);
   const workoutSession: WorkoutSession = {
-    id: crypto.randomUUID(),
+    id: createSessionId(),
     date: new Date().toISOString(),
     focus,
     completionStatus,
@@ -217,4 +217,12 @@ function carryDifficultyState(
   delete next[fromId];
   next[toId] = [...(next[toId] ?? []), ...carried];
   return next;
+}
+
+function createSessionId(): string {
+  if (typeof globalThis.crypto?.randomUUID === "function") {
+    return globalThis.crypto.randomUUID();
+  }
+
+  return `session-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 }
