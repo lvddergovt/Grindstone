@@ -1,4 +1,4 @@
-# GetInShape
+# Grindstone
 
 Local-first workout companion for the Daily Reps style training plan.
 
