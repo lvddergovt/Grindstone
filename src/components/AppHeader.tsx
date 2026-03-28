@@ -1,7 +1,7 @@
 export function AppHeader({ name, level }: { name: string; level: number }) {
   return (
     <header className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,_rgba(125,211,252,0.18),_transparent_35%),linear-gradient(180deg,_rgba(15,23,42,0.96),_rgba(9,17,31,0.98))] px-5 py-6 shadow-focus">
-      <p className="text-xs uppercase tracking-[0.32em] text-mist/70">GetInShape</p>
+      <p className="text-xs uppercase tracking-[0.32em] text-mist/70">Grindstone</p>
       <div className="mt-4 flex items-end justify-between gap-4">
         <div>
           <h1 className="font-display text-4xl font-bold leading-none">{name}</h1>

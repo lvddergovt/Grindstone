@@ -9,8 +9,8 @@ export default defineConfig({
       registerType: "autoUpdate",
       includeAssets: ["favicon.svg", "apple-touch-icon.png"],
       manifest: {
-        name: "GetInShape",
-        short_name: "GetInShape",
+        name: "Grindstone",
+        short_name: "Grindstone",
         description: "A local-first workout companion for Daily Reps style training.",
         theme_color: "#111827",
         background_color: "#0b1020",

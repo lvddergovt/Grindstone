@@ -1,8 +1,11 @@
 import type { Equipment, Phase, ProgressState, UserSettings, WorkoutSession, Weekday } from "../types";
 
-const SETTINGS_KEY = "getinshape.settings";
-const HISTORY_KEY = "getinshape.history";
-const PROGRESS_KEY = "getinshape.progress";
+const SETTINGS_KEY = "grindstone.settings";
+const HISTORY_KEY = "grindstone.history";
+const PROGRESS_KEY = "grindstone.progress";
+const LEGACY_SETTINGS_KEY = "getinshape.settings";
+const LEGACY_HISTORY_KEY = "getinshape.history";
+const LEGACY_PROGRESS_KEY = "getinshape.progress";
 
 const defaultSettings: UserSettings = {
   name: "",
@@ -27,8 +30,8 @@ const defaultProgress: ProgressState = {
 const validEquipment = new Set<Equipment>(["bodyweight", "chair", "backpack", "kettlebell", "pullupBar"]);
 const validWorkoutDays = new Set<Weekday>([0, 1, 2, 3, 4, 5, 6]);
 
-function readJson<T>(key: string): T | null {
-  const raw = window.localStorage.getItem(key);
+function readJson<T>(key: string, legacyKey?: string): T | null {
+  const raw = window.localStorage.getItem(key) ?? (legacyKey ? window.localStorage.getItem(legacyKey) : null);
   if (!raw) return null;
 
   try {
@@ -89,7 +92,7 @@ function normalizeSettings(value: Partial<UserSettings>, hasStoredSettings: bool
 }
 
 export function loadSettings(): UserSettings {
-  const parsed = readJson<Partial<UserSettings>>(SETTINGS_KEY);
+  const parsed = readJson<Partial<UserSettings>>(SETTINGS_KEY, LEGACY_SETTINGS_KEY);
   if (!parsed) return defaultSettings;
   return normalizeSettings(parsed, true);
 }
@@ -99,7 +102,7 @@ export function saveSettings(settings: UserSettings): void {
 }
 
 export function loadHistory(): WorkoutSession[] {
-  return readJson<WorkoutSession[]>(HISTORY_KEY) ?? [];
+  return readJson<WorkoutSession[]>(HISTORY_KEY, LEGACY_HISTORY_KEY) ?? [];
 }
 
 export function saveHistory(history: WorkoutSession[]): void {
@@ -107,7 +110,7 @@ export function saveHistory(history: WorkoutSession[]): void {
 }
 
 export function loadProgress(): ProgressState {
-  return readJson<ProgressState>(PROGRESS_KEY) ?? defaultProgress;
+  return readJson<ProgressState>(PROGRESS_KEY, LEGACY_PROGRESS_KEY) ?? defaultProgress;
 }
 
 export function saveProgress(progress: ProgressState): void {
