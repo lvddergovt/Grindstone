@@ -140,23 +140,23 @@ export function WorkoutTab({
           </div>
         </div>
 
-        <div className="mt-5 flex items-center gap-3">
+        <div className="mt-5 flex w-full items-center gap-3">
           <button
-            className="h-14 w-14 rounded-full border border-white/10 bg-slate-950/60 text-2xl"
+            className="h-12 w-12 rounded-full border border-white/10 bg-slate-950/60 text-2xl sm:h-14 sm:w-14"
             type="button"
             onClick={() => setRepDraft(Math.max(0, repDraft - (currentTargetType === "seconds" ? 5 : 1)))}
           >
             -
           </button>
           <input
-            className="h-16 flex-1 rounded-[1.25rem] border border-white/10 bg-slate-950/60 px-4 text-center text-3xl outline-none"
+            className="h-14 min-w-0 flex-1 rounded-[1.25rem] border border-white/10 bg-slate-950/60 px-2 text-center text-2xl outline-none sm:h-16 sm:px-4 sm:text-3xl"
             min={0}
             type="number"
             value={repDraft}
             onChange={(event) => setRepDraft(Math.max(0, Number(event.target.value) || 0))}
           />
           <button
-            className="h-14 w-14 rounded-full border border-white/10 bg-slate-950/60 text-2xl"
+            className="h-12 w-12 rounded-full border border-white/10 bg-slate-950/60 text-2xl sm:h-14 sm:w-14"
             type="button"
             onClick={() => setRepDraft(repDraft + (currentTargetType === "seconds" ? 5 : 1))}
           >

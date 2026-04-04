@@ -102,7 +102,19 @@ export function saveSettings(settings: UserSettings): void {
 }
 
 export function loadHistory(): WorkoutSession[] {
-  return readJson<WorkoutSession[]>(HISTORY_KEY, LEGACY_HISTORY_KEY) ?? [];
+  const parsed = readJson<unknown>(HISTORY_KEY, LEGACY_HISTORY_KEY);
+  if (!Array.isArray(parsed)) return [];
+
+  return parsed
+    .filter((value): value is Record<string, unknown> => Boolean(value) && typeof value === "object")
+    .map((session) => {
+      const completionStatus = session.completionStatus === "partial" ? "partial" : "completed";
+
+      return {
+        ...(session as unknown as WorkoutSession),
+        completionStatus
+      };
+    });
 }
 
 export function saveHistory(history: WorkoutSession[]): void {

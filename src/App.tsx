@@ -46,6 +46,11 @@ export default function App() {
   const displayName = settings.name.trim() || "Athlete";
 
   const todaysWorkout = useMemo(() => buildWorkout(settings, todayFocus), [settings, todayFocus]);
+  const completedToday = useMemo(() => {
+    const now = new Date();
+    const todayKey = localDateKey(now);
+    return history.some((session) => session.completionStatus === "completed" && localDateKey(new Date(session.date)) === todayKey);
+  }, [history]);
   const completedThisWeek = useMemo(() => {
     const now = new Date();
     const weekAgo = new Date(now);
@@ -250,6 +255,7 @@ export default function App() {
                   durationMinutes={settings.workoutDurationMinutes}
                   streakCount={progress.streakCount}
                   workoutPlan={todaysWorkout}
+                  completedToday={completedToday}
                   completedThisWeek={completedThisWeek}
                   onStartWorkout={startWorkout}
                 />
@@ -310,4 +316,11 @@ export default function App() {
       </div>
     </div>
   );
+}
+
+function localDateKey(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
