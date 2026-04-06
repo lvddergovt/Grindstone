@@ -18,6 +18,13 @@ Local-first workout companion for the Daily Reps style training plan.
 - add to iPhone home screen
 - no hosting or backend required
 
+## Deploy (GitHub Pages)
+
+1. Push this repo to GitHub (default branch: `main`).
+2. In GitHub: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+3. Commit + push to `main` to trigger the workflow.
+4. Check **Actions** for the run and the published URL.
+
 ## Commands
 
 Install dependencies:
