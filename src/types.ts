@@ -20,7 +20,6 @@ export interface WorkoutPlanExercise {
   targetLabel: string;
 }
 
-export type DifficultyFeedback = "tooEasy" | "goodChallenge" | "tooHard";
 export type ExerciseTargetType = "reps" | "seconds";
 export type WorkoutCompletionStatus = "completed" | "partial";
 
@@ -38,7 +37,6 @@ export interface WorkoutExerciseResult {
   reps: number;
   completedRounds?: number;
   skippedRounds?: number;
-  difficulty?: DifficultyFeedback;
   targetType?: ExerciseTargetType;
 }
 
@@ -51,6 +49,7 @@ export interface WorkoutSession {
   roundsCompleted: number;
   totalReps: number;
   exerciseResults: WorkoutExerciseResult[];
+  userNote?: string;
   progressionNotes?: string[];
 }
 
@@ -82,5 +81,4 @@ export interface ActiveSession {
   totals: Record<string, number>;
   completedRoundsByExercise: Record<string, number>;
   skippedRoundsByExercise: Record<string, number>;
-  difficultyByExercise: Record<string, DifficultyFeedback[]>;
 }

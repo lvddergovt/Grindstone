@@ -1,6 +1,5 @@
 import { exercises } from "../data/exercises";
 import type {
-  DifficultyFeedback,
   Exercise,
   ExerciseTargetType,
   FocusDay,
@@ -221,24 +220,6 @@ export function getTargetType(exercise: Exercise): ExerciseTargetType {
   return "reps";
 }
 
-export function adjustTargetFromFeedback(
-  targetType: ExerciseTargetType,
-  baseline: number,
-  difficulty?: DifficultyFeedback
-): number {
-  const step = targetType === "seconds" ? 5 : 2;
-
-  if (difficulty === "tooEasy") {
-    return baseline + step;
-  }
-
-  if (difficulty === "tooHard") {
-    return Math.max(targetType === "seconds" ? 15 : 1, baseline - step);
-  }
-
-  return baseline;
-}
-
 export function buildProgressionNotes(session: WorkoutSession, history: WorkoutSession[]): string[] {
   const notes: string[] = [];
   const previousResults = history[0]?.exerciseResults ?? [];
@@ -254,21 +235,18 @@ export function buildProgressionNotes(session: WorkoutSession, history: WorkoutS
       continue;
     }
 
-    if (result.difficulty === "tooHard") {
-      notes.push(`${movementName} pushed the edge today. Keep that variation, tighten form, and aim for smoother ${metric} next time.`);
+    if (previous && delta >= (result.targetType === "seconds" ? 5 : 2)) {
+      notes.push(`${movementName} improved by ${delta} ${metric}. Keep matching that standard.`);
       continue;
     }
 
-    if (result.difficulty === "tooEasy" && (result.completedRounds ?? 0) >= 2) {
-      const threshold = result.targetType === "seconds" ? 10 : 3;
-      if (delta >= threshold || !previous) {
-        notes.push(`${movementName} looked ready for a bump. That muscle group is close to a level-up.`);
-        continue;
-      }
+    if (!previous && result.reps > 0) {
+      notes.push(`${movementName} is now logged. Next time, aim to match the same quality and add a little.`);
+      continue;
     }
 
-    if (previous && delta >= (result.targetType === "seconds" ? 5 : 2)) {
-      notes.push(`${movementName} improved by ${delta} ${metric}. Keep matching that standard.`);
+    if (previous && result.completedRounds && result.completedRounds >= 2 && delta >= (result.targetType === "seconds" ? 10 : 3)) {
+      notes.push(`${movementName} stayed strong across rounds. You're trending up on this pattern.`);
     }
   }
 

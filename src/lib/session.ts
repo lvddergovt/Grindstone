@@ -1,6 +1,5 @@
 import type {
   ActiveSession,
-  DifficultyFeedback,
   FocusDay,
   Phase,
   WorkoutCompletionStatus,
@@ -8,7 +7,6 @@ import type {
   WorkoutSession
 } from "../types";
 import {
-  adjustTargetFromFeedback,
   buildProgressionNotes,
   calculateStreak,
   calculateXp,
@@ -25,8 +23,7 @@ export function createSession(plan: WorkoutPlanExercise[]): ActiveSession {
     currentRound: 1,
     totals: { ...zeroState },
     completedRoundsByExercise: { ...zeroState },
-    skippedRoundsByExercise: { ...zeroState },
-    difficultyByExercise: Object.fromEntries(plan.map((item) => [item.exercise.id, []]))
+    skippedRoundsByExercise: { ...zeroState }
   };
 }
 
@@ -36,12 +33,11 @@ export function nextRepDraft(
   exerciseIndex: number
 ): number {
   const exercise = plan[exerciseIndex];
-  const previousResult = history[0]?.exerciseResults.find((result) => result.exerciseId === exercise.exercise.id);
   const baseline = getLastExerciseRep(history, exercise.exercise.id) || guessBaselineForPhase(exercise.exercise.phase);
-  return adjustTargetFromFeedback(getTargetType(exercise.exercise), baseline, previousResult?.difficulty);
+  return baseline;
 }
 
-export function advanceSession(session: ActiveSession, reps: number, difficulty: DifficultyFeedback) {
+export function advanceSession(session: ActiveSession, reps: number) {
   const current = session.plan[session.currentIndex];
   const nextTotals = {
     ...session.totals,
@@ -51,16 +47,11 @@ export function advanceSession(session: ActiveSession, reps: number, difficulty:
     ...session.completedRoundsByExercise,
     [current.exercise.id]: (session.completedRoundsByExercise[current.exercise.id] ?? 0) + 1
   };
-  const nextDifficulty = {
-    ...session.difficultyByExercise,
-    [current.exercise.id]: [...(session.difficultyByExercise[current.exercise.id] ?? []), difficulty]
-  };
 
   return moveToNextExercise({
     ...session,
     totals: nextTotals,
-    completedRoundsByExercise: nextCompletedRounds,
-    difficultyByExercise: nextDifficulty
+    completedRoundsByExercise: nextCompletedRounds
   });
 }
 
@@ -90,8 +81,7 @@ export function swapCurrentExercise(session: ActiveSession, replacement: Workout
       currentId,
       replacement.exercise.id
     ),
-    skippedRoundsByExercise: carryNumberState(session.skippedRoundsByExercise, currentId, replacement.exercise.id),
-    difficultyByExercise: carryDifficultyState(session.difficultyByExercise, currentId, replacement.exercise.id)
+    skippedRoundsByExercise: carryNumberState(session.skippedRoundsByExercise, currentId, replacement.exercise.id)
   };
 }
 
@@ -103,18 +93,19 @@ export function completeSession(args: {
   elapsedSeconds: number;
   fallbackDurationMinutes: number;
   existingBadges: string[];
+  userNote?: string;
 }) {
-  const { session, history, focus, completionStatus, elapsedSeconds, fallbackDurationMinutes, existingBadges } = args;
+  const { session, history, focus, completionStatus, elapsedSeconds, fallbackDurationMinutes, existingBadges, userNote } = args;
   const exerciseResults = session.plan.map((item) => ({
     exerciseId: item.exercise.id,
     reps: session.totals[item.exercise.id] ?? 0,
     completedRounds: session.completedRoundsByExercise[item.exercise.id] ?? 0,
     skippedRounds: session.skippedRoundsByExercise[item.exercise.id] ?? 0,
-    difficulty: summarizeDifficulty(session.difficultyByExercise[item.exercise.id] ?? []),
     targetType: getTargetType(item.exercise)
   }));
   const totalReps = exerciseResults.reduce((sum, result) => sum + result.reps, 0);
   const roundsCompleted = Math.max(session.currentRound - 1, totalReps > 0 ? 1 : 0);
+  const normalizedUserNote = userNote?.trim();
   const workoutSession: WorkoutSession = {
     id: createSessionId(),
     date: new Date().toISOString(),
@@ -124,6 +115,7 @@ export function completeSession(args: {
     roundsCompleted,
     totalReps,
     exerciseResults,
+    userNote: normalizedUserNote ? normalizedUserNote : undefined,
     progressionNotes: []
   };
   workoutSession.progressionNotes = buildProgressionNotes(workoutSession, history);
@@ -183,39 +175,11 @@ function moveToNextExercise(session: ActiveSession) {
   };
 }
 
-function summarizeDifficulty(feedback: DifficultyFeedback[]): DifficultyFeedback | undefined {
-  if (feedback.length === 0) return undefined;
-
-  const counts = feedback.reduce(
-    (totals, value) => {
-      totals[value] += 1;
-      return totals;
-    },
-    { tooEasy: 0, goodChallenge: 0, tooHard: 0 }
-  );
-
-  if (counts.tooHard >= counts.goodChallenge && counts.tooHard >= counts.tooEasy) return "tooHard";
-  if (counts.tooEasy > counts.goodChallenge && counts.tooEasy > counts.tooHard) return "tooEasy";
-  return "goodChallenge";
-}
-
 function carryNumberState(source: Record<string, number>, fromId: string, toId: string): Record<string, number> {
   const next = { ...source };
   const carried = next[fromId] ?? 0;
   delete next[fromId];
   next[toId] = Math.max(next[toId] ?? 0, carried);
-  return next;
-}
-
-function carryDifficultyState(
-  source: Record<string, DifficultyFeedback[]>,
-  fromId: string,
-  toId: string
-): Record<string, DifficultyFeedback[]> {
-  const next = { ...source };
-  const carried = next[fromId] ?? [];
-  delete next[fromId];
-  next[toId] = [...(next[toId] ?? []), ...carried];
   return next;
 }
 

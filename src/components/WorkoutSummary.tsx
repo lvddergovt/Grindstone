@@ -54,9 +54,10 @@ export function WorkoutSummary({
         </div>
 
         <div className="rounded-[1.75rem] border border-white/10 bg-white/5 px-5 py-5">
-          <p className="text-xs uppercase tracking-[0.22em] text-mist/55">Progression note</p>
+          <p className="text-xs uppercase tracking-[0.22em] text-mist/55">{summary.session.userNote ? "Your note" : "Progression note"}</p>
           <p className="mt-2 text-base text-white">
-            {summary.session.progressionNotes?.[0] ??
+            {summary.session.userNote?.trim() ||
+              summary.session.progressionNotes?.[0] ||
               "Keep stacking clean reps. Consistency is what unlocks the next level."}
           </p>
         </div>

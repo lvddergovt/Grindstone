@@ -22,7 +22,6 @@ import { buildWorkout, getLastExerciseRep, getSwapOptions, getTargetType, getTod
 import type {
   ActiveSession,
   AppTab,
-  DifficultyFeedback,
   Equipment,
   Phase,
   ProgressState,
@@ -42,7 +41,6 @@ export default function App() {
   const [activeSession, setActiveSession] = useState<ActiveSession | null>(null);
   const [latestSummary, setLatestSummary] = useState<WorkoutSummaryData | null>(null);
   const [repDraft, setRepDraft] = useState(8);
-  const [difficultyDraft, setDifficultyDraft] = useState<DifficultyFeedback>("goodChallenge");
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const todayFocus = getTodayFocus(settings);
   const displayName = settings.name.trim() || "Athlete";
@@ -107,17 +105,15 @@ export default function App() {
     const session = createSession(todaysWorkout);
     setActiveSession(session);
     setRepDraft(nextRepDraft(history, session.plan, 0));
-    setDifficultyDraft("goodChallenge");
     setTab("workout");
   }
 
   function logCurrentExercise() {
     if (!activeSession) return;
 
-    const { session, upcomingIndex } = advanceSession(activeSession, repDraft, difficultyDraft);
+    const { session, upcomingIndex } = advanceSession(activeSession, repDraft);
     setActiveSession(session);
     setRepDraft(nextRepDraft(history, session.plan, upcomingIndex));
-    setDifficultyDraft("goodChallenge");
   }
 
   function handleSkipCurrentExercise() {
@@ -126,7 +122,6 @@ export default function App() {
     const { session, upcomingIndex } = skipCurrentExercise(activeSession);
     setActiveSession(session);
     setRepDraft(nextRepDraft(history, session.plan, upcomingIndex));
-    setDifficultyDraft("goodChallenge");
   }
 
   function handleSwapCurrentExercise(replacement: WorkoutPlanExercise) {
@@ -135,10 +130,9 @@ export default function App() {
     const session = swapCurrentExercise(activeSession, replacement);
     setActiveSession(session);
     setRepDraft(nextRepDraft(history, session.plan, session.currentIndex));
-    setDifficultyDraft("goodChallenge");
   }
 
-  function finishWorkout(completionStatus: WorkoutCompletionStatus = "completed") {
+  function finishWorkout(completionStatus: WorkoutCompletionStatus = "completed", userNote = "") {
     if (!activeSession) return;
 
     const previousSession = history[0];
@@ -149,7 +143,8 @@ export default function App() {
       completionStatus,
       elapsedSeconds,
       fallbackDurationMinutes: settings.workoutDurationMinutes,
-      existingBadges: progress.badges
+      existingBadges: progress.badges,
+      userNote
     });
     const unlockedBadges = result.badges.filter((badge) => !progress.badges.includes(badge));
     const totalXp = progress.totalXp + result.gainedXp;
@@ -178,7 +173,6 @@ export default function App() {
     });
     setActiveSession(null);
     setRepDraft(8);
-    setDifficultyDraft("goodChallenge");
     setTab("summary");
   }
 
@@ -187,12 +181,11 @@ export default function App() {
     setLatestSummary(null);
     setElapsedSeconds(0);
     setRepDraft(8);
-    setDifficultyDraft("goodChallenge");
     setTab("today");
   }
 
-  function savePartialWorkout() {
-    finishWorkout("partial");
+  function savePartialWorkout(note: string) {
+    finishWorkout("partial", note);
   }
 
   function updatePhase(group: keyof UserSettings["phaseByMuscleGroup"], value: number) {
@@ -276,19 +269,18 @@ export default function App() {
                 <WorkoutTab
                   session={activeSession}
                   currentExercise={currentExercise}
+                  history={history}
                   elapsedSeconds={elapsedSeconds}
                   durationMinutes={settings.workoutDurationMinutes}
                   lastRepForCurrent={lastRepForCurrent}
                   currentTargetType={currentTargetType}
                   repDraft={repDraft}
                   setRepDraft={setRepDraft}
-                  difficultyDraft={difficultyDraft}
-                  setDifficultyDraft={setDifficultyDraft}
                   swapOptions={swapOptions}
                   onLogCurrentExercise={logCurrentExercise}
                   onSkipCurrentExercise={handleSkipCurrentExercise}
                   onSwapCurrentExercise={handleSwapCurrentExercise}
-                  onFinishWorkout={() => finishWorkout("completed")}
+                  onFinishWorkout={(note) => finishWorkout("completed", note)}
                   onSavePartialWorkout={savePartialWorkout}
                   onDiscardWorkout={discardWorkout}
                   isSessionComplete={isSessionComplete}

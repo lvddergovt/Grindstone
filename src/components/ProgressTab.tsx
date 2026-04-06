@@ -75,10 +75,10 @@ export function ProgressTab({
               <DeltaCard label="Rounds" current={latest.roundsCompleted} previous={previous?.roundsCompleted} />
               <DeltaCard label="Duration" current={latest.durationMinutes} previous={previous?.durationMinutes} suffix="m" />
             </div>
-            {latest.progressionNotes?.length ? (
+            {latest.userNote?.trim() || latest.progressionNotes?.length ? (
               <div className="mt-4 rounded-[1.25rem] border border-white/10 bg-slate-950/35 px-4 py-4">
-                <p className="text-xs uppercase tracking-[0.22em] text-mist/55">Progression note</p>
-                <p className="mt-2 text-sm text-mist/80">{latest.progressionNotes[0]}</p>
+                <p className="text-xs uppercase tracking-[0.22em] text-mist/55">{latest.userNote ? "Your note" : "Progression note"}</p>
+                <p className="mt-2 text-sm text-mist/80">{latest.userNote?.trim() || latest.progressionNotes?.[0]}</p>
               </div>
             ) : null}
           </>
@@ -134,7 +134,7 @@ export function ProgressTab({
                 <div className="mt-3 grid grid-cols-3 gap-3 text-sm text-mist/80">
                   <span>{session.totalReps} reps</span>
                   <span>{session.roundsCompleted} rounds</span>
-                  <span>{session.progressionNotes?.length ? "Progress note saved" : "No note"}</span>
+                  <span>{session.userNote?.trim() ? "Note saved" : "No note"}</span>
                 </div>
               </div>
             ))}

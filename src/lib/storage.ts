@@ -132,6 +132,7 @@ function normalizeHistory(parsed: unknown): WorkoutSession[] {
         roundsCompleted: typeof session.roundsCompleted === "number" ? session.roundsCompleted : 0,
         totalReps: typeof session.totalReps === "number" ? session.totalReps : 0,
         exerciseResults: Array.isArray(session.exerciseResults) ? (session.exerciseResults as WorkoutSession["exerciseResults"]) : [],
+        userNote: typeof session.userNote === "string" ? session.userNote : undefined,
         progressionNotes: Array.isArray(session.progressionNotes)
           ? session.progressionNotes.filter((value): value is string => typeof value === "string")
           : undefined
