@@ -1,15 +1,8 @@
 import { focusLabels } from "../constants/labels";
+import { getBadgeDefinition } from "../constants/badges";
 import { levelFromXp } from "../lib/workout";
 import type { ProgressState, WorkoutSession } from "../types";
 import { Stat } from "./Surface";
-
-const badgeDescriptions: Record<string, string> = {
-  "First workout": "You started the streak board.",
-  "3-day streak": "Three training days in a row.",
-  "5 workouts": "Five workouts logged.",
-  "100 reps": "100 total reps across your history.",
-  "3-round finisher": "Three full rounds in one session."
-};
 
 export function ProgressTab({
   progress,
@@ -108,7 +101,7 @@ export function ProgressTab({
             {progress.badges.map((badge) => (
               <div key={badge} className="rounded-[1.25rem] border border-glow/20 bg-glow/8 px-4 py-4">
                 <p className="font-medium text-glow">{badge}</p>
-                <p className="mt-1 text-sm text-mist/75">{badgeDescriptions[badge] ?? "Progress unlocked."}</p>
+                <p className="mt-1 text-sm text-mist/75">{getBadgeDefinition(badge).description}</p>
               </div>
             ))}
           </div>

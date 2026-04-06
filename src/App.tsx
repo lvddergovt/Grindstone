@@ -6,6 +6,7 @@ import { SettingsTab } from "./components/SettingsTab";
 import { SetupTab } from "./components/SetupTab";
 import { BottomNav } from "./components/Surface";
 import { TodayTab } from "./components/TodayTab";
+import { TrophiesTab } from "./components/TrophiesTab";
 import { WorkoutTab } from "./components/WorkoutTab";
 import { WorkoutSummary } from "./components/WorkoutSummary";
 import {
@@ -297,6 +298,8 @@ export default function App() {
               {tab === "progress" && (
                 <ProgressTab progress={progress} history={history} totalRepsAllTime={totalRepsAllTime} />
               )}
+
+              {tab === "trophies" && <TrophiesTab progress={progress} />}
 
               {tab === "summary" && latestSummary && (
                 <WorkoutSummary

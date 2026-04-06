@@ -32,6 +32,7 @@ export function BottomNav({
       <NavButton current={current} label="Today" value="today" onClick={onClick} />
       <NavButton current={current} label="Workout" value="workout" onClick={onClick} disabled={!workoutEnabled} />
       <NavButton current={current} label="Progress" value="progress" onClick={onClick} />
+      <NavButton current={current} label="Trophies" value="trophies" onClick={onClick} />
       <NavButton current={current} label="Settings" value="settings" onClick={onClick} />
     </nav>
   );
@@ -53,7 +54,7 @@ function NavButton({
   const active = current === value || (current === "setup" && value === "settings");
   return (
     <button
-      className={`flex-1 rounded-full px-3 py-3 text-sm font-medium transition ${
+      className={`flex-1 rounded-full px-2 py-3 text-xs font-medium transition sm:px-3 sm:text-sm ${
         active ? "bg-white text-slate-950" : "bg-white/5 text-mist/80"
       } ${disabled ? "cursor-not-allowed opacity-40" : ""}`}
       type="button"

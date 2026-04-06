@@ -1,14 +1,7 @@
 import { focusLabels } from "../constants/labels";
+import { getBadgeDefinition } from "../constants/badges";
 import { formatDuration } from "../lib/session";
 import type { WorkoutSummaryData } from "../types";
-
-const badgeDescriptions: Record<string, string> = {
-  "First workout": "You showed up and set the baseline.",
-  "3-day streak": "Three training days in a row. Momentum is real.",
-  "5 workouts": "Five logged sessions. This is becoming a habit.",
-  "100 reps": "You have stacked 100 total reps across sessions.",
-  "3-round finisher": "You pushed through three full rounds in one workout."
-};
 
 export function WorkoutSummary({
   summary,
@@ -129,7 +122,7 @@ export function WorkoutSummary({
             {summary.unlockedBadges.map((badge) => (
               <div key={badge} className="rounded-[1.25rem] border border-glow/20 bg-glow/8 px-4 py-4">
                 <p className="font-medium text-glow">{badge}</p>
-                <p className="mt-1 text-sm text-mist/75">{badgeDescriptions[badge] ?? "Progress unlocked."}</p>
+                <p className="mt-1 text-sm text-mist/75">{getBadgeDefinition(badge).description}</p>
               </div>
             ))}
           </div>
