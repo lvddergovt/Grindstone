@@ -1,4 +1,13 @@
-import type { Equipment, Phase, ProgressState, UserSettings, WorkoutSession, Weekday } from "../types";
+import type {
+  Equipment,
+  FocusDay,
+  Phase,
+  ProgressState,
+  UserSettings,
+  WorkoutCompletionStatus,
+  WorkoutSession,
+  Weekday
+} from "../types";
 
 const SETTINGS_KEY = "grindstone.settings";
 const HISTORY_KEY = "grindstone.history";
@@ -29,6 +38,12 @@ const defaultProgress: ProgressState = {
 
 const validEquipment = new Set<Equipment>(["bodyweight", "chair", "backpack", "kettlebell", "pullupBar"]);
 const validWorkoutDays = new Set<Weekday>([0, 1, 2, 3, 4, 5, 6]);
+const validFocusDays = new Set<FocusDay>(["armsChest", "legs", "abs", "back", "recovery"]);
+const validCompletionStatuses = new Set<WorkoutCompletionStatus>(["completed", "partial"]);
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
 
 function readJson<T>(key: string, legacyKey?: string): T | null {
   const raw = window.localStorage.getItem(key) ?? (legacyKey ? window.localStorage.getItem(legacyKey) : null);
@@ -86,9 +101,52 @@ function normalizeSettings(value: Partial<UserSettings>, hasStoredSettings: bool
       abs: normalizePhase(value.phaseByMuscleGroup?.abs, defaultSettings.phaseByMuscleGroup.abs),
       back: normalizePhase(value.phaseByMuscleGroup?.back, defaultSettings.phaseByMuscleGroup.back)
     },
-    onboardingCompleted:
-      typeof value.onboardingCompleted === "boolean" ? value.onboardingCompleted : hasStoredSettings
+    onboardingCompleted: typeof value.onboardingCompleted === "boolean" ? value.onboardingCompleted : hasStoredSettings
   };
+}
+
+function normalizeHistory(parsed: unknown): WorkoutSession[] {
+  if (!Array.isArray(parsed)) return [];
+
+  return parsed
+    .filter((value): value is Record<string, unknown> => isRecord(value))
+    .map((session, index) => {
+      const completionStatus =
+        typeof session.completionStatus === "string" &&
+        validCompletionStatuses.has(session.completionStatus as WorkoutCompletionStatus)
+          ? (session.completionStatus as WorkoutCompletionStatus)
+          : "completed";
+      const focus =
+        typeof session.focus === "string" && validFocusDays.has(session.focus as FocusDay)
+          ? (session.focus as FocusDay)
+          : "recovery";
+      const date = typeof session.date === "string" ? session.date : new Date().toISOString();
+      const id = typeof session.id === "string" ? session.id : `${date}-${index}`;
+
+      return {
+        id,
+        date,
+        focus,
+        completionStatus,
+        durationMinutes: typeof session.durationMinutes === "number" ? session.durationMinutes : 0,
+        roundsCompleted: typeof session.roundsCompleted === "number" ? session.roundsCompleted : 0,
+        totalReps: typeof session.totalReps === "number" ? session.totalReps : 0,
+        exerciseResults: Array.isArray(session.exerciseResults) ? (session.exerciseResults as WorkoutSession["exerciseResults"]) : [],
+        progressionNotes: Array.isArray(session.progressionNotes)
+          ? session.progressionNotes.filter((value): value is string => typeof value === "string")
+          : undefined
+      };
+    });
+}
+
+function normalizeProgress(value: unknown): ProgressState {
+  if (!isRecord(value)) return defaultProgress;
+
+  const totalXp = typeof value.totalXp === "number" ? value.totalXp : defaultProgress.totalXp;
+  const streakCount = typeof value.streakCount === "number" ? value.streakCount : defaultProgress.streakCount;
+  const badges = Array.isArray(value.badges) ? value.badges.filter((item): item is string => typeof item === "string") : [];
+
+  return { totalXp, streakCount, badges };
 }
 
 export function loadSettings(): UserSettings {
@@ -103,18 +161,7 @@ export function saveSettings(settings: UserSettings): void {
 
 export function loadHistory(): WorkoutSession[] {
   const parsed = readJson<unknown>(HISTORY_KEY, LEGACY_HISTORY_KEY);
-  if (!Array.isArray(parsed)) return [];
-
-  return parsed
-    .filter((value): value is Record<string, unknown> => Boolean(value) && typeof value === "object")
-    .map((session) => {
-      const completionStatus = session.completionStatus === "partial" ? "partial" : "completed";
-
-      return {
-        ...(session as unknown as WorkoutSession),
-        completionStatus
-      };
-    });
+  return normalizeHistory(parsed);
 }
 
 export function saveHistory(history: WorkoutSession[]): void {
@@ -122,9 +169,40 @@ export function saveHistory(history: WorkoutSession[]): void {
 }
 
 export function loadProgress(): ProgressState {
-  return readJson<ProgressState>(PROGRESS_KEY, LEGACY_PROGRESS_KEY) ?? defaultProgress;
+  const parsed = readJson<unknown>(PROGRESS_KEY, LEGACY_PROGRESS_KEY);
+  return normalizeProgress(parsed);
 }
 
 export function saveProgress(progress: ProgressState): void {
   window.localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
+}
+
+export type BackupPayloadV1 = {
+  version: 1;
+  exportedAt: string;
+  settings: UserSettings;
+  history: WorkoutSession[];
+  progress: ProgressState;
+};
+
+export function createBackupPayload(settings: UserSettings, history: WorkoutSession[], progress: ProgressState): BackupPayloadV1 {
+  return {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    settings,
+    history,
+    progress
+  };
+}
+
+export function parseBackupPayload(value: unknown): { settings: UserSettings; history: WorkoutSession[]; progress: ProgressState } | null {
+  if (!isRecord(value)) return null;
+  if (value.version !== 1) return null;
+  if (!isRecord(value.settings)) return null;
+
+  const settings = normalizeSettings(value.settings as Partial<UserSettings>, true);
+  const history = normalizeHistory(value.history);
+  const progress = normalizeProgress(value.progress);
+
+  return { settings, history, progress };
 }

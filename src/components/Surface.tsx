@@ -32,7 +32,7 @@ export function BottomNav({
       <NavButton current={current} label="Today" value="today" onClick={onClick} />
       <NavButton current={current} label="Workout" value="workout" onClick={onClick} disabled={!workoutEnabled} />
       <NavButton current={current} label="Progress" value="progress" onClick={onClick} />
-      <NavButton current={current} label="Setup" value="settings" onClick={onClick} />
+      <NavButton current={current} label="Settings" value="settings" onClick={onClick} />
     </nav>
   );
 }
@@ -50,7 +50,7 @@ function NavButton({
   onClick: (value: AppTab) => void;
   disabled?: boolean;
 }) {
-  const active = current === value;
+  const active = current === value || (current === "setup" && value === "settings");
   return (
     <button
       className={`flex-1 rounded-full px-3 py-3 text-sm font-medium transition ${

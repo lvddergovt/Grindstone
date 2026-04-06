@@ -3,7 +3,7 @@ export type Phase = 1 | 2 | 3 | 4;
 export type FocusDay = "armsChest" | "legs" | "abs" | "back" | "recovery";
 export type Equipment = "bodyweight" | "chair" | "backpack" | "kettlebell" | "pullupBar";
 export type Weekday = 0 | 1 | 2 | 3 | 4 | 5 | 6;
-export type AppTab = "today" | "workout" | "progress" | "settings" | "summary";
+export type AppTab = "today" | "workout" | "progress" | "settings" | "setup" | "summary";
 
 export interface Exercise {
   id: string;

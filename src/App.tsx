@@ -3,6 +3,7 @@ import { AppHeader } from "./components/AppHeader";
 import { OnboardingFlow } from "./components/OnboardingFlow";
 import { ProgressTab } from "./components/ProgressTab";
 import { SettingsTab } from "./components/SettingsTab";
+import { SetupTab } from "./components/SetupTab";
 import { BottomNav } from "./components/Surface";
 import { TodayTab } from "./components/TodayTab";
 import { WorkoutTab } from "./components/WorkoutTab";
@@ -230,6 +231,15 @@ export default function App() {
     setTab("today");
   }
 
+  function importBackup(data: { settings: UserSettings; history: WorkoutSession[]; progress: ProgressState }) {
+    setActiveSession(null);
+    setLatestSummary(null);
+    setSettings(data.settings);
+    setHistory(data.history);
+    setProgress(data.progress);
+    setTab("settings");
+  }
+
   return (
     <div className="min-h-screen bg-ink text-white">
       <div className={`mx-auto flex min-h-screen max-w-md flex-col px-5 pt-6 ${settings.onboardingCompleted ? "pb-28" : "pb-8"}`}>
@@ -299,11 +309,22 @@ export default function App() {
               {tab === "settings" && (
                 <SettingsTab
                   settings={settings}
+                  history={history}
+                  progress={progress}
+                  onOpenSetup={() => setTab("setup")}
+                  onImport={importBackup}
+                />
+              )}
+
+              {tab === "setup" && (
+                <SetupTab
+                  settings={settings}
                   onNameChange={(name) => setSettings({ ...settings, name })}
                   onDurationChange={(workoutDurationMinutes) => setSettings({ ...settings, workoutDurationMinutes })}
                   onEquipmentToggle={toggleEquipment}
                   onWorkoutDayToggle={toggleWorkoutDay}
                   onPhaseChange={updatePhase}
+                  onBack={() => setTab("settings")}
                 />
               )}
             </>
